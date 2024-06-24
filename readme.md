@@ -8,6 +8,9 @@ Do a mobile app (language, target and framework of your choice) that will fetch 
 - Search feature
 - Token refresh
 - Logout on failure
+- Fix directory structure
 - UI improvements
   - confirmation popup on logout
   - alerts and badges
+  - etc
+- Improve code clarity and quality
