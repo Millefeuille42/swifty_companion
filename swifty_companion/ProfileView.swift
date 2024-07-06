@@ -1,6 +1,6 @@
 //
 //  HomeView.swift
-//  swify_companion
+//  swifty_companion
 //
 //  Created by Millefeuille on 20/06/2024.
 //

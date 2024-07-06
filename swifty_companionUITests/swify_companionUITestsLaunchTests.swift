@@ -1,13 +1,13 @@
 //
-//  swify_companionUITestsLaunchTests.swift
-//  swify_companionUITests
+//  swifty_companionUITestsLaunchTests.swift
+//  swifty_companionUITests
 //
 //  Created by Millefeuille on 20/06/2024.
 //
 
 import XCTest
 
-final class swify_companionUITestsLaunchTests: XCTestCase {
+final class swifty_companionUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

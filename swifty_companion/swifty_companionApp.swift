@@ -1,6 +1,6 @@
 //
-//  swify_companionApp.swift
-//  swify_companion
+//  swifty_companionApp.swift
+//  swifty_companion
 //
 //  Created by Millefeuille on 20/06/2024.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct swify_companionApp: App {
+struct swifty_companionApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,

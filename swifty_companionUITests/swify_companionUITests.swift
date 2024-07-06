@@ -1,13 +1,13 @@
 //
-//  swify_companionUITests.swift
-//  swify_companionUITests
+//  swifty_companionUITests.swift
+//  swifty_companionUITests
 //
 //  Created by Millefeuille on 20/06/2024.
 //
 
 import XCTest
 
-final class swify_companionUITests: XCTestCase {
+final class swifty_companionUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

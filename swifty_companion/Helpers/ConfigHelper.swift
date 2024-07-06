@@ -1,6 +1,6 @@
 //
 //  ConfigHelper.swift
-//  swify_companion
+//  swifty_companion
 //
 //  Created by Millefeuille on 21/06/2024.
 //
