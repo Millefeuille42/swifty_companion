@@ -25,5 +25,7 @@ struct Skills: View {
 }
 
 #Preview {
-    Skills(skills: [])
+    Skills(
+        skills: previewSkills
+    )
 }

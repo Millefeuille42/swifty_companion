@@ -61,5 +61,5 @@ extension ProfileViewWrapper {
 }
 
 #Preview {
-    ProfileViewWrapper(login: "tefroiss")
+    ProfileViewWrapper(login: "me")
 }

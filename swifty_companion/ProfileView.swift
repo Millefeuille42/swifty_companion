@@ -118,8 +118,6 @@ extension ProfileView {
     }
 }
 
-var defaultUser: User = User(id: 0, login: "someone", email: "jesuisunmail@mail", usualFullName: "Some one", image: UserImage(link:"https://thispersondoesnotexist.com/"), correctionPoint: 4, location: "Here", wallet: 20000, cursusUsers: [], projectsUsers: [])
-
 #Preview {
-    ProfileView(user: defaultUser)
+    ProfileView(user: previewUser)
 }
