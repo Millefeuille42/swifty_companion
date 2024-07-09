@@ -8,20 +8,14 @@
 import SwiftUI
 
 struct MainView: View {
-    @State var viewModel = ViewModel()
     let onLogout: () -> Void
     
     var body: some View {
         BottomBar(tabs: [
             Tab(
-                title: "Me",
+                title: "Profile",
                 iconName: "person.crop.circle",
-                content: AnyView(ProfileView(login: "me"))
-            ),
-            Tab(
-                title: "Search",
-                iconName: "magnifyingglass.circle.fill",
-                content: AnyView(ProfileView(login: "clafoutis"))
+                content: AnyView(SearchView())
             ),
             Tab(
                 title: "Settings",
@@ -40,15 +34,6 @@ struct MainView: View {
                 )}))
             )
         ])
-    }
-}
-
-extension MainView {
-    @Observable
-    class ViewModel {
-        var errorMessage: String?
-        
-        init() {}
     }
 }
 

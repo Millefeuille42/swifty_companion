@@ -50,11 +50,4 @@ struct User: Codable, Identifiable {
 // MARK: - Image
 struct UserImage: Codable {
     let link: String
-    let versions: Versions
-}
-
-// MARK: - Versions
-struct Versions: Codable {
-    let large, medium, small: String
-    let micro: String
 }

@@ -44,11 +44,15 @@ extension LoginView {
         }
         
         private func initSelf() {
+            FtApiClient.shared.onLogout {
+                // TODO display alert
+                self.handleLogout()
+            }
+            self.isAuthenticated = FtApiClient.shared.isAuthenticated()
+            if (self.isAuthenticated) { return }
+                
             do {
                 self.authorizationUrl = try FtApiClient.shared.authorizeUrl()
-                self.isAuthenticated = try FtApiClient.shared.isAuthenticated()
-            } catch KeychainHelper.KeychainError.noData {
-                self.isAuthenticated = false
             } catch KeychainHelper.KeychainError.unhandledError(let status, let context) {
                 self.errorMessage = "Failed to interact with keychain storage: \(status) (\(context ?? "no context"))"
             } catch (let error) {
@@ -57,9 +61,7 @@ extension LoginView {
         }
         
         func handleLogout() {
-            try? KeychainHelper.shared.delete(key: "authorization_code")
-            try? KeychainHelper.shared.delete(key: "oauth_state")
-            try? KeychainHelper.shared.delete(key: "access_token")
+            try? FtApiClient.shared.logout()
             initSelf()
         }
         

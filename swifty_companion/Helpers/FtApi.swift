@@ -9,6 +9,7 @@ import Foundation
 
 class FtApiClient {
     static let shared = FtApiClient()
+    private var _onLogout: () -> Void = {}
     
     enum ApiError: Error {
         case getToken
@@ -18,6 +19,8 @@ class FtApiClient {
         case requestFailed
         case invalidResponse
         case invalidState
+        case notFound
+        case tooManyRequests
         case unhandledError(any Error)
     }
     
@@ -55,22 +58,38 @@ class FtApiClient {
         return urlBuilder?.url
     }
     
+    func onLogout(_ f: @escaping () -> Void) {
+        self._onLogout = f
+    }
+    
+    func logout() throws {
+        try KeychainHelper.shared.delete(key: "authorization_code")
+        try KeychainHelper.shared.delete(key: "oauth_state")
+        try KeychainHelper.shared.delete(key: "access_token")
+        self._onLogout()
+    }
+    
     func getToken() throws -> Token {
         let tokenString = try KeychainHelper.shared.load(key: "access_token")
 
         // TODO
         //  - refresh if expired
-        //  - delete all if invalid
         guard !tokenString.isEmpty,
             let tokenData = tokenString.data(using: .utf8),
-            let token = try? JSONDecoder().decode(Token.self, from: tokenData),
-            token.expiresAt >= Date()
-        else { throw ApiError.invalidToken }
+            let token = try? JSONDecoder().decode(Token.self, from: tokenData)
+        else {
+            throw ApiError.invalidToken
+        }
+        
+        guard token.expiresAt >= Date() else {
+            // refresh token
+            return token
+        }
         
         return token
     }
     
-    func isAuthenticated() throws -> Bool {
+    func isAuthenticated() -> Bool {
         return (try? getToken()) != nil
     }
     
@@ -128,24 +147,20 @@ class FtApiClient {
             }
             
             guard let httpResponse = response as? HTTPURLResponse,
-                    (200...299).contains(httpResponse.statusCode) 
+                    (200...399).contains(httpResponse.statusCode)
             else {
                 print(httpResponse.statusCode)
-                if httpResponse.statusCode == 401 {
-                    // TODO Let getToken handle the refresh
-                    sleep(1)
-                    self.fetchAccessToken() { result in
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .failure(let error):
-                                completion(.failure(error))
-                            case .success(_):
-                                print("refreshed token")
-                            }
-                        }
-                    }
+                switch httpResponse.statusCode {
+                case 404:
+                    completion(.failure(.notFound))
+                case 401:
+                    self._onLogout()
+                    completion(.failure(.invalidToken))
+                case 429:
+                    completion(.failure(.tooManyRequests))
+                default:
+                    completion(.failure(.invalidResponse))
                 }
-                completion(.failure(.invalidResponse))
                 return
             }
             
