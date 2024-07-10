@@ -75,12 +75,13 @@ extension LoginView {
         }
         
         private func fetchAccessToken() {
-            FtApiClient.shared.fetchAccessToken() { result in
+            FtApiClient.shared.fetchAccessTokenCode() { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(_):
                         self.isAuthenticated = true
                     case .failure(let error):
+                        self.handleLogout()
                         self.errorMessage = "Failed to fetch access token: \(error)"
                     }
                 }

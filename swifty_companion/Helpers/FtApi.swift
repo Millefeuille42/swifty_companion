@@ -72,8 +72,6 @@ class FtApiClient {
     func getToken() throws -> Token {
         let tokenString = try KeychainHelper.shared.load(key: "access_token")
 
-        // TODO
-        //  - refresh if expired
         guard !tokenString.isEmpty,
             let tokenData = tokenString.data(using: .utf8),
             let token = try? JSONDecoder().decode(Token.self, from: tokenData)
@@ -82,8 +80,23 @@ class FtApiClient {
         }
         
         guard token.expiresAt >= Date() else {
-            // refresh token
-            return token
+            try KeychainHelper.shared.delete(key: "access_token")
+            let semaphore = DispatchSemaphore(value: 0)
+            var tokenResult: Result<Token, ApiError>?
+            
+            fetchAccessTokenRefresh(token: token) { result in
+                tokenResult = result
+                semaphore.signal()
+            }
+            semaphore.wait()
+            switch tokenResult {
+            case .failure(let error):
+                throw error
+            case .success(let newToken):
+                return newToken
+            case .none:
+                throw ApiError.invalidToken
+            }
         }
         
         return token
@@ -174,13 +187,7 @@ class FtApiClient {
         task.resume()
     }
     
-    func fetchAccessToken(completion: @escaping (Result<Token, ApiError>) -> Void) {
-        // TODO Add refresh token query
-        guard let url = URL(string: OAuthConfig.accessTokenUrl) else {
-            completion(.failure(.invalidUrl))
-            return
-        }
-        
+    func fetchAccessTokenCode(completion: @escaping (Result<Token, ApiError>) -> Void) {
         guard let authorizationCode = try? KeychainHelper.shared.load(key: "authorization_code") else {
             completion(.failure(.noCode))
             return
@@ -193,6 +200,37 @@ class FtApiClient {
             "code": authorizationCode,
             "redirect_uri": OAuthConfig.callbackUrl
         ]
+        
+        fetchAccessToken(bodyParameters) { result in
+            switch result {
+            case .success(let token): completion(.success(token))
+            case .failure(let error): completion(.failure(error))
+            }
+        }
+    }
+    
+    func fetchAccessTokenRefresh(token: Token, completion: @escaping (Result<Token, ApiError>) -> Void) {
+        let bodyParameters = [
+            "grant_type": "refresh_token",
+            "client_id": OAuthConfig.consumerKey,
+            "client_secret": OAuthConfig.consumerSecret,
+            "refresh_token": token.refreshToken ?? "",
+            "redirect_uri": OAuthConfig.callbackUrl
+        ]
+        
+        fetchAccessToken(bodyParameters) { result in
+            switch result {
+            case .success(let token): completion(.success(token))
+            case .failure(let error): completion(.failure(error))
+            }
+        }
+    }
+    
+    func fetchAccessToken(_ bodyParameters: [String:String], completion: @escaping (Result<Token, ApiError>) -> Void) {
+        guard let url = URL(string: OAuthConfig.accessTokenUrl) else {
+            completion(.failure(.invalidUrl))
+            return
+        }
         
         let bodyString = bodyParameters
             .map { "\($0.key)=\($0.value)" }
