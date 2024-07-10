@@ -20,18 +20,7 @@ struct MainView: View {
             Tab(
                 title: "Settings",
                 iconName: "gear",
-                content: AnyView(VStack(
-                    content: {
-                        Button(
-                            action: onLogout,
-                            label: {
-                                Text("Logout")
-                                    .padding()
-                                    .background(Color.red)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                            }
-                )}))
+                content: AnyView(SettingsView(onLogout: onLogout))
             )
         ])
     }
