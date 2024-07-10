@@ -11,24 +11,32 @@ struct LoginView: View {
     @State var viewModel = ViewModel()
     
     var body: some View {
-        if viewModel.errorMessage != nil {
-            Text(viewModel.errorMessage ?? "Error")
-                .foregroundColor(.red)
-        } else if viewModel.isAuthenticated {
-            MainView(onLogout: viewModel.handleLogout)
-        } else {
-            NavigationView {
-                NavigationLink(
-                    destination: WebView(url: viewModel.authorizationUrl, onCustomLink: viewModel.handleCallback),
-                    label: {
-                        Text("Login with OAuth")
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                    })
+        VStack{
+            if viewModel.errorMessage != nil {
+                Text(viewModel.errorMessage ?? "Error")
+                    .foregroundColor(.red)
+            } else if viewModel.isAuthenticated {
+                MainView(onLogout: viewModel.handleLogout)
+            } else {
+                NavigationView {
+                    NavigationLink(
+                        destination: WebView(url: viewModel.authorizationUrl, onCustomLink: viewModel.handleCallback),
+                        label: {
+                            Text("Login with OAuth")
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        })
+                }
             }
         }
+        .alert(isPresented: $viewModel.presentAlert, content: {
+            Alert(
+                title: Text("You have been logged out"),
+                message: Text("Please log back in to continue to use the app")
+            )
+        })
     }
 }
 
@@ -38,6 +46,7 @@ extension LoginView {
         var isAuthenticated: Bool = false
         var authorizationUrl: URL?
         var errorMessage: String?
+        var presentAlert: Bool = false
         
         init() {
             initSelf()
@@ -45,7 +54,7 @@ extension LoginView {
         
         private func initSelf() {
             FtApiClient.shared.onLogout {
-                // TODO display alert
+                self.presentAlert = true
                 self.handleLogout()
             }
             self.isAuthenticated = FtApiClient.shared.isAuthenticated()
