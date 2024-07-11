@@ -38,4 +38,12 @@ class ConfigHelper {
         }
         return val
     }
+    
+    func appVersion() -> String {
+        return self.getFromConfig(key: "CFBundleShortVersionString")
+    }
+    
+    func appName() -> String {
+        return self.getFromConfig(key: "CFBundleDisplayName")
+    }
 }

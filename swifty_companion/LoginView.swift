@@ -13,11 +13,14 @@ struct LoginView: View {
     var body: some View {
         VStack{
             if viewModel.errorMessage != nil {
+                TitleHeader()
                 Text(viewModel.errorMessage ?? "Error")
                     .foregroundColor(.red)
             } else if viewModel.isAuthenticated {
                 MainView(onLogout: viewModel.handleLogout)
             } else {
+                TitleHeader()
+                Divider()
                 NavigationView {
                     NavigationLink(
                         destination: WebView(url: viewModel.authorizationUrl, onCustomLink: viewModel.handleCallback),
@@ -27,8 +30,8 @@ struct LoginView: View {
                                 .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
-                        })
-                }
+                    })
+                }.padding(.bottom, 100)
             }
         }
         .alert(isPresented: $viewModel.presentAlert, content: {
